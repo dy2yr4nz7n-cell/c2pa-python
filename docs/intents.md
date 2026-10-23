@@ -51,7 +51,7 @@ You can set the intent on a `Builder` instance by:
 - [Using Context](#using-context)
 - [Using `set_intent` on the `Builder`](#using-set_intent-on-the-builder)
 
-Don't set the intent using the deprecated `load_settings()` function. For existing code, see [Context and settings - Migrating from load_settings](context-settings.md#migrating-from-load_settings).
+The thread-local `load_settings()` function has been removed. For existing code, see [Context and settings - Migrating from load_settings](context-settings.md#migrating-from-load_settings).
 
 ### Using Context
 
@@ -87,7 +87,7 @@ for path in image_paths:
         builder.sign_file(path, output_path(path), signer)
 ```
 
-### Using `set_intent` on the Builder
+### Using set_intent on the Builder
 
 Call `set_intent` directly on a `Builder` instance for one-off operations or when the intent is determined at runtime. For example:
 
@@ -114,11 +114,7 @@ flowchart TD
     Check --> |No| CheckCtx{Was a Context with
     builder.intent provided?}
     CheckCtx --> |Yes| UseCtx["Use Context intent"]
-    CheckCtx --> |No| CheckGlobal{Was load_settings called
-    with builder.intent?}
-    CheckGlobal --> |Yes| UseGlobal["Use global intent
-    (deprecated)"]
-    CheckGlobal --> |No| NoIntent["No intent set.
+    CheckCtx --> |No| NoIntent["No intent set.
     Caller must define actions
     manually in manifest JSON."]
 ```
@@ -166,15 +162,14 @@ flowchart LR
 
 For `Edit` and `Update` intents, `Builder` looks at the source stream, and if no `parentOf` ingredient has been added manually, it automatically creates one from that stream (and adds the needed action). The source stream *becomes* the parent ingredient. If a `parentOf` ingredient has already been added manually (via `add_ingredient`), `Builder` uses that one instead and does not automatically create one from the source.
 
-### How intent relates to `add_ingredient`
+### How intent relates to add_ingredient
 
 The `Builder` intent controls what the `Builder` does with the source stream (source asset) at sign time. The `add_ingredient` method adds other ingredients explicitly. These are separate concerns.
 
 ```mermaid
 flowchart TD
     Intent["Intent
-    (via Context, set_intent,
-    or load_settings)"] --> Q{Intent type?}
+    (via Context or set_intent)"] --> Q{Intent type?}
     Q --> |CREATE| CreateFlow["No parent allowed
     Source stream is new content"]
     Q --> |EDIT or UPDATE| EditFlow{Was a parentOf ingredient
@@ -208,7 +203,7 @@ from c2pa import (
 )
 ```
 
-### Using `set_intent`
+### Using set_intent
 
 Use the `Builder.set_intent` method to specify the intent:
 
